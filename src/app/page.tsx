@@ -10,6 +10,7 @@ import {
   YAxis,
   Tooltip,
   CartesianGrid,
+  TooltipProps,
 } from "recharts";
 
 export default function Dashboard() {
@@ -24,8 +25,17 @@ export default function Dashboard() {
   const monthlyCashFlow = store.calculateMonthlyCashFlow();
 
   // Custom tooltip component for the chart
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
+  const CustomTooltip = ({
+    active,
+    payload,
+    label,
+  }: TooltipProps<number, string>) => {
+    if (
+      active &&
+      payload &&
+      payload.length &&
+      typeof payload[0].value === "number"
+    ) {
       return (
         <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-lg p-3 shadow-lg">
           <p className="text-sm text-gray-500 dark:text-gray-400">

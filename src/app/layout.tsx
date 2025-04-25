@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { CURRENCIES, Currency } from "@/lib/types";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useFinancialStore } from "@/lib/store";
 
@@ -39,9 +40,16 @@ function NavBar() {
         <div className="flex items-center justify-between h-16">
           <Link
             href="/"
-            className="text-xl font-bold text-gray-900 dark:text-white"
+            className="flex items-center gap-2 cursor-pointer hover:opacity-80"
           >
-            Assetly
+            <Image
+              src="/header-banner.png"
+              alt="Assetly"
+              height={32}
+              width={120}
+              className="h-8 w-auto object-contain"
+              priority
+            />
           </Link>
           <div className="flex items-center space-x-4">
             <select
