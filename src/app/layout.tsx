@@ -32,7 +32,8 @@ export default function RootLayout({
 
 function NavBar() {
   const pathname = usePathname();
-  const { currency, setCurrency } = useFinancialStore();
+  const { currency, setCurrency, isDemoMode, setDemoMode } =
+    useFinancialStore();
 
   return (
     <nav className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
@@ -52,8 +53,33 @@ function NavBar() {
             />
           </Link>
           <div className="flex items-center space-x-4">
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={isDemoMode}
+                onChange={(e) => setDemoMode(e.target.checked)}
+                className="sr-only peer"
+              />
+              <div
+                className="w-11 h-6 bg-gray-200 dark:bg-gray-600 rounded-full peer 
+                peer-focus:ring-4 peer-focus:ring-emerald-300 dark:peer-focus:ring-emerald-800
+                peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full 
+                peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 
+                after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 
+                after:transition-all dark:border-gray-600 peer-checked:bg-emerald-500
+                after:shadow-sm"
+              ></div>
+              <span className="ms-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+                Demo
+              </span>
+            </label>
             <select
-              className="block w-32 px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:focus:ring-emerald-400 focus:border-transparent appearance-none cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+              className="block w-32 px-3 py-2 text-sm bg-white dark:bg-gray-700 
+                text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-600 
+                rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 
+                dark:focus:ring-emerald-400 focus:border-transparent appearance-none 
+                cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors
+                text-center font-medium"
               aria-label="Select currency"
               value={currency.code}
               onChange={(e) => {
@@ -65,11 +91,15 @@ function NavBar() {
                 }
               }}
             >
-              {CURRENCIES.map((curr: Currency) => (
+              {[
+                ...CURRENCIES.filter((c) => c.code === "GBP"),
+                ...CURRENCIES.filter((c) => c.code === "AUD"),
+                ...CURRENCIES.filter((c) => !["GBP", "AUD"].includes(c.code)),
+              ].map((curr: Currency) => (
                 <option
                   key={curr.code}
                   value={curr.code}
-                  className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                  className="text-center font-medium bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                 >
                   {curr.code} - {curr.symbol}
                 </option>

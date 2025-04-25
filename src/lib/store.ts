@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { FinancialItem, IncomeItem, CURRENCIES, TAX_CONFIGS, Currency } from './types';
 import { calculateNetIncome } from './utils';
+import { demoAssets, demoLiabilities, demoIncome, demoNetWorthHistory } from './demoData';
 
 interface NetWorthSnapshot {
   date: string;
@@ -13,7 +14,9 @@ interface FinancialState {
   liabilities: FinancialItem[];
   income: IncomeItem[];
   netWorthHistory: NetWorthSnapshot[];
+  isDemoMode: boolean;
   setCurrency: (c: Currency) => void;
+  setDemoMode: (enabled: boolean) => void;
   addAsset: (asset: FinancialItem) => void;
   editAsset: (id: string, asset: Partial<FinancialItem>) => void;
   removeAsset: (id: string) => void;
@@ -32,6 +35,13 @@ interface FinancialState {
   addNetWorthSnapshot: () => void;
 }
 
+// Load demo mode state from localStorage
+const loadDemoMode = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  const saved = localStorage.getItem('isDemoMode');
+  return saved === 'true';
+};
+
 // Load net worth history from localStorage
 const loadNetWorthHistory = (): NetWorthSnapshot[] => {
   if (typeof window === 'undefined') return [];
@@ -39,18 +49,46 @@ const loadNetWorthHistory = (): NetWorthSnapshot[] => {
   return saved ? JSON.parse(saved) : [];
 };
 
+// Load currency from localStorage
+const loadCurrency = (): Currency => {
+  if (typeof window === 'undefined') return CURRENCIES.find(c => c.code === "GBP") || CURRENCIES[0];
+  const saved = localStorage.getItem('currency');
+  if (saved) {
+    const parsedCurrency = JSON.parse(saved);
+    const foundCurrency = CURRENCIES.find(c => c.code === parsedCurrency.code);
+    if (foundCurrency) return foundCurrency;
+  }
+  return CURRENCIES.find(c => c.code === "GBP") || CURRENCIES[0];
+};
+
 // Find GBP in the CURRENCIES array
-const defaultCurrency = CURRENCIES.find(c => c.code === "GBP") || CURRENCIES[0];
+const defaultCurrency = loadCurrency();
 
 export const useFinancialStore = create<FinancialState>((set, get) => ({
   currency: defaultCurrency,
-  assets: [],
-  liabilities: [],
-  income: [],
+  assets: loadDemoMode() ? demoAssets : [],
+  liabilities: loadDemoMode() ? demoLiabilities : [],
+  income: loadDemoMode() ? demoIncome : [],
   netWorthHistory: loadNetWorthHistory(),
+  isDemoMode: loadDemoMode(),
 
   setCurrency: (c: Currency) => {
+    localStorage.setItem('currency', JSON.stringify(c));
     set({ currency: c });
+  },
+
+  setDemoMode: (enabled: boolean) => {
+    localStorage.setItem('isDemoMode', String(enabled));
+    set(() => ({
+      isDemoMode: enabled,
+      assets: enabled ? demoAssets : [],
+      liabilities: enabled ? demoLiabilities : [],
+      income: enabled ? demoIncome : [],
+      netWorthHistory: enabled ? demoNetWorthHistory : []
+    }));
+    if (enabled) {
+      get().addNetWorthSnapshot();
+    }
   },
 
   addAsset: (asset) => {

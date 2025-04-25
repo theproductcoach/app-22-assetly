@@ -1,36 +1,81 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Assetly - Personal Finance Tracker
+
+Assetly is a modern web application for tracking your personal finances, including assets, liabilities, income, and net worth over time.
+
+## Features
+
+- **Asset Management**
+  - Track multiple types of assets (properties, vehicles, investments, etc.)
+  - Property tracking with mortgage and offset account support
+  - Automatic value calculations and updates
+
+- **Liability Tracking**
+  - Monitor debts and loans
+  - Track payment schedules and interest rates
+  - See total liability overview
+
+- **Income Management**
+  - Track multiple income sources
+  - Support for both salary and non-salary income
+  - Monthly and annual income frequency options
+  - Automatic tax calculations based on jurisdiction
+
+- **Financial Overview**
+  - Real-time net worth calculation
+  - Historical net worth tracking with graphs
+  - Monthly cash flow analysis
+  - Comprehensive financial dashboard
+
+- **Multi-Currency Support**
+  - Support for GBP, AUD, USD, and EUR
+  - Real-time currency switching
+  - Currency-specific tax calculations
+
+- **Demo Mode**
+  - Try the app with pre-populated demo data
+  - Realistic financial scenarios
+  - Historical net worth progression
+
+## Technology Stack
+
+- Next.js for the frontend framework
+- TypeScript for type safety
+- Tailwind CSS for styling
+- Zustand for state management
+- Local storage for data persistence
 
 ## Getting Started
 
-First, run the development server:
+1. Clone the repository
+2. Install dependencies:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+   ```bash
+   npm install
+   ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+3. Run the development server:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+   ```bash
+   npm run dev
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-## Learn More
+## Usage
 
-To learn more about Next.js, take a look at the following resources:
+1. Toggle demo mode to explore the app with sample data
+2. Add your assets, liabilities, and income sources
+3. Track your net worth over time
+4. Use the currency selector to view your finances in different currencies
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Data Privacy
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+All data is stored locally in your browser using localStorage. No financial data is sent to any external servers.
 
-## Deploy on Vercel
+## Contributing
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## License
+
+MIT License - feel free to use this project for personal or commercial purposes.
