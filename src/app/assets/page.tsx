@@ -14,6 +14,7 @@ export default function Assets() {
     type: "simple" as AssetType,
     label: "",
     value: "",
+    dateAcquired: new Date().toISOString().split("T")[0],
     purchasePrice: "",
     currentValue: "",
     mortgageOwing: "",
@@ -30,6 +31,7 @@ export default function Assets() {
           id: Date.now().toString(),
           type: "property",
           label: newAsset.label,
+          dateAcquired: newAsset.dateAcquired,
           value:
             parseFloat(newAsset.currentValue) -
             Math.max(
@@ -48,6 +50,7 @@ export default function Assets() {
           type: "simple",
           label: "",
           value: "",
+          dateAcquired: new Date().toISOString().split("T")[0],
           purchasePrice: "",
           currentValue: "",
           mortgageOwing: "",
@@ -62,12 +65,14 @@ export default function Assets() {
           id: Date.now().toString(),
           type: "simple",
           label: newAsset.label,
+          dateAcquired: newAsset.dateAcquired,
           value: parseFloat(newAsset.value),
         });
         setNewAsset({
           type: "simple",
           label: "",
           value: "",
+          dateAcquired: new Date().toISOString().split("T")[0],
           purchasePrice: "",
           currentValue: "",
           mortgageOwing: "",
@@ -85,6 +90,7 @@ export default function Assets() {
       type: asset.type || "simple",
       label: asset.label,
       value: asset.value.toString(),
+      dateAcquired: asset.dateAcquired,
       purchasePrice: (asset.purchasePrice || 0).toString(),
       currentValue: (asset.currentValue || 0).toString(),
       mortgageOwing: (asset.mortgageOwing || 0).toString(),
@@ -103,6 +109,7 @@ export default function Assets() {
         editAsset(editingId, {
           type: "property",
           label: newAsset.label,
+          dateAcquired: newAsset.dateAcquired,
           value:
             parseFloat(newAsset.currentValue) -
             Math.max(
@@ -123,6 +130,7 @@ export default function Assets() {
         editAsset(editingId, {
           type: "simple",
           label: newAsset.label,
+          dateAcquired: newAsset.dateAcquired,
           value: parseFloat(newAsset.value),
         });
       }
@@ -133,6 +141,7 @@ export default function Assets() {
       type: "simple",
       label: "",
       value: "",
+      dateAcquired: new Date().toISOString().split("T")[0],
       purchasePrice: "",
       currentValue: "",
       mortgageOwing: "",
@@ -156,7 +165,7 @@ export default function Assets() {
             onSubmit={editingId ? handleUpdateAsset : handleAddAsset}
             className="space-y-4 mb-6"
           >
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="relative w-full sm:w-40">
                 <select
                   value={newAsset.type}
@@ -198,6 +207,30 @@ export default function Assets() {
                 }
                 className="flex-1 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <input
+                type="date"
+                value={newAsset.dateAcquired}
+                onChange={(e) =>
+                  setNewAsset({ ...newAsset, dateAcquired: e.target.value })
+                }
+                className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              />
+              {newAsset.type === "simple" ? (
+                <input
+                  type="number"
+                  placeholder="Value"
+                  value={newAsset.value}
+                  onChange={(e) =>
+                    setNewAsset({ ...newAsset, value: e.target.value })
+                  }
+                  className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  step="0.01"
+                  min="0"
+                />
+              ) : null}
             </div>
 
             {newAsset.type === "property" ? (
@@ -297,19 +330,7 @@ export default function Assets() {
                   />
                 </div>
               </div>
-            ) : (
-              <input
-                type="number"
-                placeholder="Value"
-                value={newAsset.value}
-                onChange={(e) =>
-                  setNewAsset({ ...newAsset, value: e.target.value })
-                }
-                className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                step="0.01"
-                min="0"
-              />
-            )}
+            ) : null}
 
             <button
               type="submit"

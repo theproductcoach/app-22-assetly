@@ -59,7 +59,7 @@ function NavBar() {
             >
               {CURRENCIES.map((curr: Currency) => (
                 <option key={curr.code} value={curr.code}>
-                  {curr.label}
+                  {curr.name}
                 </option>
               ))}
             </select>

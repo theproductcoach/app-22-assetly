@@ -18,6 +18,7 @@ export default function Liabilities() {
   const [newLiability, setNewLiability] = useState({
     label: "",
     value: "",
+    dateAcquired: new Date().toISOString().split("T")[0],
     interestRate: "",
     monthlyRepayment: "",
   });
@@ -29,6 +30,7 @@ export default function Liabilities() {
         id: Date.now().toString(),
         type: "simple",
         label: newLiability.label,
+        dateAcquired: newLiability.dateAcquired,
         value: parseFloat(newLiability.value),
         interestRate: parseFloat(newLiability.interestRate || "0"),
         monthlyRepayment: parseFloat(newLiability.monthlyRepayment || "0"),
@@ -36,6 +38,7 @@ export default function Liabilities() {
       setNewLiability({
         label: "",
         value: "",
+        dateAcquired: new Date().toISOString().split("T")[0],
         interestRate: "",
         monthlyRepayment: "",
       });
@@ -47,6 +50,7 @@ export default function Liabilities() {
     setNewLiability({
       label: liability.label,
       value: liability.value.toString(),
+      dateAcquired: liability.dateAcquired,
       interestRate: (liability.interestRate || 0).toString(),
       monthlyRepayment: (liability.monthlyRepayment || 0).toString(),
     });
@@ -60,6 +64,7 @@ export default function Liabilities() {
       editLiability(editingId, {
         type: "simple",
         label: newLiability.label,
+        dateAcquired: newLiability.dateAcquired,
         value: parseFloat(newLiability.value),
         interestRate: parseFloat(newLiability.interestRate || "0"),
         monthlyRepayment: parseFloat(newLiability.monthlyRepayment || "0"),
@@ -70,6 +75,7 @@ export default function Liabilities() {
     setNewLiability({
       label: "",
       value: "",
+      dateAcquired: new Date().toISOString().split("T")[0],
       interestRate: "",
       monthlyRepayment: "",
     });
@@ -113,6 +119,17 @@ export default function Liabilities() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <input
+                type="date"
+                value={newLiability.dateAcquired}
+                onChange={(e) =>
+                  setNewLiability({
+                    ...newLiability,
+                    dateAcquired: e.target.value,
+                  })
+                }
+                className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              />
               <div className="relative">
                 <input
                   type="number"

@@ -12,18 +12,18 @@ export default function Income() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [newIncome, setNewIncome] = useState({
     label: "",
-    amount: "",
+    value: "",
     frequency: "monthly" as "monthly" | "annually",
     isSalary: true,
   });
 
   const handleAddIncome = (e: React.FormEvent) => {
     e.preventDefault();
-    if (newIncome.label && newIncome.amount) {
+    if (newIncome.label && newIncome.value) {
       const incomeItem: IncomeItem = {
         id: Date.now().toString(),
         label: newIncome.label,
-        amount: parseFloat(newIncome.amount),
+        value: parseFloat(newIncome.value),
         frequency: newIncome.frequency,
         isSalary: newIncome.isSalary,
       };
@@ -31,7 +31,7 @@ export default function Income() {
       addIncome(incomeItem);
       setNewIncome({
         label: "",
-        amount: "",
+        value: "",
         frequency: "monthly",
         isSalary: true,
       });
@@ -42,7 +42,7 @@ export default function Income() {
     setEditingId(item.id);
     setNewIncome({
       label: item.label,
-      amount: item.amount.toString(),
+      value: item.value.toString(),
       frequency: item.frequency,
       isSalary: item.isSalary ?? true,
     });
@@ -52,10 +52,10 @@ export default function Income() {
     e.preventDefault();
     if (!editingId) return;
 
-    if (newIncome.label && newIncome.amount) {
+    if (newIncome.label && newIncome.value) {
       const incomeItem: Partial<IncomeItem> = {
         label: newIncome.label,
-        amount: parseFloat(newIncome.amount),
+        value: parseFloat(newIncome.value),
         frequency: newIncome.frequency,
         isSalary: newIncome.isSalary,
       };
@@ -65,7 +65,7 @@ export default function Income() {
     setEditingId(null);
     setNewIncome({
       label: "",
-      amount: "",
+      value: "",
       frequency: "monthly",
       isSalary: true,
     });
@@ -98,9 +98,9 @@ export default function Income() {
               <input
                 type="number"
                 placeholder="Amount"
-                value={newIncome.amount}
+                value={newIncome.value}
                 onChange={(e) =>
-                  setNewIncome({ ...newIncome, amount: e.target.value })
+                  setNewIncome({ ...newIncome, value: e.target.value })
                 }
                 className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 step="0.01"
@@ -180,7 +180,7 @@ export default function Income() {
                       </span>
                     </div>
                     <span className="text-emerald-600 dark:text-emerald-400 font-medium block mt-1">
-                      {formatCurrency(item.amount, currency)}
+                      {formatCurrency(item.value, currency)}
                       <span className="text-sm text-gray-500 dark:text-gray-400 ml-1">
                         /{item.frequency}
                       </span>
