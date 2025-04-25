@@ -17,7 +17,7 @@ export type IncomeItem = {
   id: string;
   label: string;
   amount: number;
-  frequency: "monthly" | "yearly";
+  frequency: "monthly" | "annually";
   isSalary?: boolean;
 };
 
@@ -52,19 +52,19 @@ export const TAX_CONFIGS: Record<string, TaxConfig> = {
     currency: "GBP",
     brackets: [
       { min: 0, max: 12570, rate: 0 },
-      { min: 12571, max: 50270, rate: 20 },
-      { min: 50271, max: 150000, rate: 40 },
-      { min: 150001, max: Infinity, rate: 45 },
+      { min: 12571, max: 50270, rate: 0.2 },
+      { min: 50271, max: 150000, rate: 0.4 },
+      { min: 150001, max: Infinity, rate: 0.45 },
     ],
   },
   AUD: {
     currency: "AUD",
     brackets: [
       { min: 0, max: 18200, rate: 0 },
-      { min: 18201, max: 45000, rate: 19 },
-      { min: 45001, max: 120000, rate: 32.5 },
-      { min: 120001, max: 180000, rate: 37 },
-      { min: 180001, max: Infinity, rate: 45 },
+      { min: 18201, max: 45000, rate: 0.19 },
+      { min: 45001, max: 120000, rate: 0.325 },
+      { min: 120001, max: 180000, rate: 0.37 },
+      { min: 180001, max: Infinity, rate: 0.45 },
     ],
   },
 }; 

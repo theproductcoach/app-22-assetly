@@ -1,12 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { FinancialItem, CURRENCIES } from "@/lib/types";
+import { FinancialItem } from "@/lib/types";
+import { useFinancialStore } from "@/lib/store";
 import { formatCurrency } from "@/lib/utils";
+import { ActionButton } from "@/components/ActionButton";
 
 export default function Liabilities() {
-  const [currency] = useState<(typeof CURRENCIES)[number]>(CURRENCIES[0]);
-  const [liabilities, setLiabilities] = useState<FinancialItem[]>([]);
+  const {
+    currency,
+    liabilities,
+    addLiability,
+    editLiability,
+    removeLiability,
+  } = useFinancialStore();
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [newLiability, setNewLiability] = useState({
     label: "",
     value: "",
@@ -17,17 +25,14 @@ export default function Liabilities() {
   const handleAddLiability = (e: React.FormEvent) => {
     e.preventDefault();
     if (newLiability.label && newLiability.value) {
-      setLiabilities([
-        ...liabilities,
-        {
-          id: Date.now().toString(),
-          type: "simple",
-          label: newLiability.label,
-          value: parseFloat(newLiability.value),
-          interestRate: parseFloat(newLiability.interestRate || "0"),
-          monthlyRepayment: parseFloat(newLiability.monthlyRepayment || "0"),
-        },
-      ]);
+      addLiability({
+        id: Date.now().toString(),
+        type: "simple",
+        label: newLiability.label,
+        value: parseFloat(newLiability.value),
+        interestRate: parseFloat(newLiability.interestRate || "0"),
+        monthlyRepayment: parseFloat(newLiability.monthlyRepayment || "0"),
+      });
       setNewLiability({
         label: "",
         value: "",
@@ -35,6 +40,39 @@ export default function Liabilities() {
         monthlyRepayment: "",
       });
     }
+  };
+
+  const handleEditLiability = (liability: FinancialItem) => {
+    setEditingId(liability.id);
+    setNewLiability({
+      label: liability.label,
+      value: liability.value.toString(),
+      interestRate: (liability.interestRate || 0).toString(),
+      monthlyRepayment: (liability.monthlyRepayment || 0).toString(),
+    });
+  };
+
+  const handleUpdateLiability = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingId) return;
+
+    if (newLiability.label && newLiability.value) {
+      editLiability(editingId, {
+        type: "simple",
+        label: newLiability.label,
+        value: parseFloat(newLiability.value),
+        interestRate: parseFloat(newLiability.interestRate || "0"),
+        monthlyRepayment: parseFloat(newLiability.monthlyRepayment || "0"),
+      });
+    }
+
+    setEditingId(null);
+    setNewLiability({
+      label: "",
+      value: "",
+      interestRate: "",
+      monthlyRepayment: "",
+    });
   };
 
   return (
@@ -47,18 +85,20 @@ export default function Liabilities() {
         </div>
 
         <div className="px-6 py-6">
-          <form onSubmit={handleAddLiability} className="space-y-4 mb-6">
-            <input
-              type="text"
-              placeholder="Liability name"
-              value={newLiability.label}
-              onChange={(e) =>
-                setNewLiability({ ...newLiability, label: e.target.value })
-              }
-              className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-            />
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <form
+            onSubmit={editingId ? handleUpdateLiability : handleAddLiability}
+            className="space-y-4 mb-6"
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <input
+                type="text"
+                placeholder="Liability name"
+                value={newLiability.label}
+                onChange={(e) =>
+                  setNewLiability({ ...newLiability, label: e.target.value })
+                }
+                className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              />
               <input
                 type="number"
                 placeholder="Amount"
@@ -66,10 +106,13 @@ export default function Liabilities() {
                 onChange={(e) =>
                   setNewLiability({ ...newLiability, value: e.target.value })
                 }
-                className="px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 step="0.01"
                 min="0"
               />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="relative">
                 <input
                   type="number"
@@ -100,7 +143,7 @@ export default function Liabilities() {
                     monthlyRepayment: e.target.value,
                   })
                 }
-                className="px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 step="0.01"
                 min="0"
               />
@@ -110,7 +153,7 @@ export default function Liabilities() {
               type="submit"
               className="w-full px-6 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg transition-colors"
             >
-              Add Liability
+              {editingId ? "Update Liability" : "Add Liability"}
             </button>
           </form>
 
@@ -118,15 +161,31 @@ export default function Liabilities() {
             {liabilities.map((liability) => (
               <li
                 key={liability.id}
-                className="py-3 border-b border-gray-100 dark:border-gray-700 last:border-0"
+                className="p-4 rounded-lg border border-gray-100 dark:border-gray-700"
               >
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-gray-900 dark:text-white font-medium">
-                    {liability.label}
-                  </span>
-                  <span className="text-red-600 dark:text-red-400 font-medium">
-                    {formatCurrency(liability.value, currency)}
-                  </span>
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-gray-900 dark:text-white font-medium">
+                        {liability.label}
+                      </span>
+                    </div>
+                    <span className="text-rose-600 dark:text-rose-400 font-medium block mt-1">
+                      {formatCurrency(liability.value, currency)}
+                    </span>
+                  </div>
+                  <div className="flex space-x-2">
+                    <ActionButton
+                      onClick={() => handleEditLiability(liability)}
+                      variant="edit"
+                      label="Edit liability"
+                    />
+                    <ActionButton
+                      onClick={() => removeLiability(liability.id)}
+                      variant="delete"
+                      label="Delete liability"
+                    />
+                  </div>
                 </div>
                 <div className="text-sm text-gray-500 dark:text-gray-400 space-y-1">
                   <div className="flex justify-between">

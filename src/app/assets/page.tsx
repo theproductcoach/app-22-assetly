@@ -1,12 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { AssetType, FinancialItem, CURRENCIES } from "@/lib/types";
+import { AssetType, FinancialItem } from "@/lib/types";
+import { useFinancialStore } from "@/lib/store";
 import { formatCurrency } from "@/lib/utils";
+import { ActionButton } from "@/components/ActionButton";
 
 export default function Assets() {
-  const [currency] = useState<(typeof CURRENCIES)[number]>(CURRENCIES[0]);
-  const [assets, setAssets] = useState<FinancialItem[]>([]);
+  const { currency, assets, addAsset, editAsset, removeAsset } =
+    useFinancialStore();
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [newAsset, setNewAsset] = useState({
     type: "simple" as AssetType,
     label: "",
@@ -23,27 +26,24 @@ export default function Assets() {
     e.preventDefault();
     if (newAsset.type === "property") {
       if (newAsset.label && newAsset.currentValue && newAsset.mortgageOwing) {
-        setAssets([
-          ...assets,
-          {
-            id: Date.now().toString(),
-            type: "property",
-            label: newAsset.label,
-            value:
-              parseFloat(newAsset.currentValue) -
-              Math.max(
-                0,
-                parseFloat(newAsset.mortgageOwing) -
-                  parseFloat(newAsset.offsetAccount || "0")
-              ),
-            purchasePrice: parseFloat(newAsset.purchasePrice || "0"),
-            currentValue: parseFloat(newAsset.currentValue),
-            mortgageOwing: parseFloat(newAsset.mortgageOwing),
-            offsetAccount: parseFloat(newAsset.offsetAccount || "0"),
-            interestRate: parseFloat(newAsset.interestRate || "0"),
-            monthlyRepayment: parseFloat(newAsset.monthlyRepayment || "0"),
-          },
-        ]);
+        addAsset({
+          id: Date.now().toString(),
+          type: "property",
+          label: newAsset.label,
+          value:
+            parseFloat(newAsset.currentValue) -
+            Math.max(
+              0,
+              parseFloat(newAsset.mortgageOwing) -
+                parseFloat(newAsset.offsetAccount || "0")
+            ),
+          purchasePrice: parseFloat(newAsset.purchasePrice || "0"),
+          currentValue: parseFloat(newAsset.currentValue),
+          mortgageOwing: parseFloat(newAsset.mortgageOwing),
+          offsetAccount: parseFloat(newAsset.offsetAccount || "0"),
+          interestRate: parseFloat(newAsset.interestRate || "0"),
+          monthlyRepayment: parseFloat(newAsset.monthlyRepayment || "0"),
+        });
         setNewAsset({
           type: "simple",
           label: "",
@@ -58,15 +58,12 @@ export default function Assets() {
       }
     } else {
       if (newAsset.label && newAsset.value) {
-        setAssets([
-          ...assets,
-          {
-            id: Date.now().toString(),
-            type: "simple",
-            label: newAsset.label,
-            value: parseFloat(newAsset.value),
-          },
-        ]);
+        addAsset({
+          id: Date.now().toString(),
+          type: "simple",
+          label: newAsset.label,
+          value: parseFloat(newAsset.value),
+        });
         setNewAsset({
           type: "simple",
           label: "",
@@ -82,6 +79,69 @@ export default function Assets() {
     }
   };
 
+  const handleEditAsset = (asset: FinancialItem) => {
+    setEditingId(asset.id);
+    setNewAsset({
+      type: asset.type || "simple",
+      label: asset.label,
+      value: asset.value.toString(),
+      purchasePrice: (asset.purchasePrice || 0).toString(),
+      currentValue: (asset.currentValue || 0).toString(),
+      mortgageOwing: (asset.mortgageOwing || 0).toString(),
+      offsetAccount: (asset.offsetAccount || 0).toString(),
+      interestRate: (asset.interestRate || 0).toString(),
+      monthlyRepayment: (asset.monthlyRepayment || 0).toString(),
+    });
+  };
+
+  const handleUpdateAsset = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingId) return;
+
+    if (newAsset.type === "property") {
+      if (newAsset.label && newAsset.currentValue && newAsset.mortgageOwing) {
+        editAsset(editingId, {
+          type: "property",
+          label: newAsset.label,
+          value:
+            parseFloat(newAsset.currentValue) -
+            Math.max(
+              0,
+              parseFloat(newAsset.mortgageOwing) -
+                parseFloat(newAsset.offsetAccount || "0")
+            ),
+          purchasePrice: parseFloat(newAsset.purchasePrice || "0"),
+          currentValue: parseFloat(newAsset.currentValue),
+          mortgageOwing: parseFloat(newAsset.mortgageOwing),
+          offsetAccount: parseFloat(newAsset.offsetAccount || "0"),
+          interestRate: parseFloat(newAsset.interestRate || "0"),
+          monthlyRepayment: parseFloat(newAsset.monthlyRepayment || "0"),
+        });
+      }
+    } else {
+      if (newAsset.label && newAsset.value) {
+        editAsset(editingId, {
+          type: "simple",
+          label: newAsset.label,
+          value: parseFloat(newAsset.value),
+        });
+      }
+    }
+
+    setEditingId(null);
+    setNewAsset({
+      type: "simple",
+      label: "",
+      value: "",
+      purchasePrice: "",
+      currentValue: "",
+      mortgageOwing: "",
+      offsetAccount: "",
+      interestRate: "",
+      monthlyRepayment: "",
+    });
+  };
+
   return (
     <div className="w-full max-w-4xl mx-auto">
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
@@ -92,7 +152,10 @@ export default function Assets() {
         </div>
 
         <div className="px-6 py-6">
-          <form onSubmit={handleAddAsset} className="space-y-4 mb-6">
+          <form
+            onSubmit={editingId ? handleUpdateAsset : handleAddAsset}
+            className="space-y-4 mb-6"
+          >
             <div className="flex flex-col sm:flex-row gap-4">
               <div className="relative w-full sm:w-40">
                 <select
@@ -252,7 +315,7 @@ export default function Assets() {
               type="submit"
               className="w-full px-6 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg transition-colors"
             >
-              Add {newAsset.type === "property" ? "Property" : "Asset"}
+              {editingId ? "Update Asset" : "Add Asset"}
             </button>
           </form>
 
@@ -260,25 +323,31 @@ export default function Assets() {
             {assets.map((asset) => (
               <li
                 key={asset.id}
-                className="py-3 border-b border-gray-100 dark:border-gray-700 last:border-0"
+                className="p-4 rounded-lg border border-gray-100 dark:border-gray-700"
               >
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-gray-900 dark:text-white font-medium">
-                    {asset.label}
-                  </span>
-                  <span className="text-emerald-600 dark:text-emerald-400 font-medium">
-                    {formatCurrency(
-                      asset.type === "property" &&
-                        asset.currentValue &&
-                        asset.mortgageOwing
-                        ? Math.max(
-                            0,
-                            asset.mortgageOwing - (asset.offsetAccount || 0)
-                          )
-                        : asset.value,
-                      currency
-                    )}
-                  </span>
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-gray-900 dark:text-white font-medium">
+                        {asset.label}
+                      </span>
+                    </div>
+                    <span className="text-emerald-600 dark:text-emerald-400 font-medium block mt-1">
+                      {formatCurrency(asset.value, currency)}
+                    </span>
+                  </div>
+                  <div className="flex space-x-2">
+                    <ActionButton
+                      onClick={() => handleEditAsset(asset)}
+                      variant="edit"
+                      label="Edit asset"
+                    />
+                    <ActionButton
+                      onClick={() => removeAsset(asset.id)}
+                      variant="delete"
+                      label="Delete asset"
+                    />
+                  </div>
                 </div>
                 {asset.type === "property" && (
                   <div className="text-sm text-gray-500 dark:text-gray-400 space-y-1">

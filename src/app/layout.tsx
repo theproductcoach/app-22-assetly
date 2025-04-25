@@ -5,6 +5,7 @@ import "./globals.css";
 import { CURRENCIES, Currency } from "@/lib/types";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useFinancialStore } from "@/lib/store";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -30,6 +31,7 @@ export default function RootLayout({
 
 function NavBar() {
   const pathname = usePathname();
+  const { currency, setCurrency } = useFinancialStore();
 
   return (
     <nav className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
@@ -45,6 +47,15 @@ function NavBar() {
             <select
               className="block w-28 px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               aria-label="Select currency"
+              value={currency.code}
+              onChange={(e) => {
+                const newCurrency = CURRENCIES.find(
+                  (c) => c.code === e.target.value
+                );
+                if (newCurrency) {
+                  setCurrency(newCurrency);
+                }
+              }}
             >
               {CURRENCIES.map((curr: Currency) => (
                 <option key={curr.code} value={curr.code}>
